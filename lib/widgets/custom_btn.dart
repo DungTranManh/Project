@@ -7,16 +7,19 @@ class CustomBtn extends StatelessWidget {
   final Function onPressed;
   final bool outlineBtn;
   final bool isLoading;
+  final bool colorBackground;
   CustomBtn({
     this.text,
     this.onPressed,
     this.outlineBtn,
     this.isLoading,
+    this.colorBackground,
   });
   @override
   Widget build(BuildContext context) {
     bool _outlineBtn = outlineBtn ?? false;
     bool _isLoading = isLoading ?? false;
+    bool _colorBackground = colorBackground ?? false;
 
     return GestureDetector(
       onTap: onPressed,
@@ -24,9 +27,9 @@ class CustomBtn extends StatelessWidget {
         height: 40.0,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: _outlineBtn ? Colors.transparent : Colors.black,
+          color: _outlineBtn ? Colors.redAccent : Colors.black,
           border: Border.all(
-            color: Colors.black,
+            color: _colorBackground ? Colors.redAccent : Colors.black,
             width: 2.0,
           ),
           borderRadius: BorderRadius.circular(20.0),

@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shop_app/constants.dart';
 import 'package:shop_app/screens/product_page.dart';
 import 'package:shop_app/services/firebase_servies.dart';
 import 'package:shop_app/widgets/custom_action_bar.dart';
+
+import '../widgets/custom_btn.dart';
 
 class CartPage extends StatefulWidget {
   @override
@@ -11,13 +14,18 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  final SnackBar _snackBar = SnackBar(
+    content: Text("Order Successfull"),
+  );
   FirebaseServices _firebaseServices = FirebaseServices();
+  double total_cost = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
           FutureBuilder<QuerySnapshot>(
+            //API get data from database
             future: _firebaseServices.usersRef
                 .doc(_firebaseServices.getUserId())
                 .collection("Cart")
@@ -62,6 +70,7 @@ class _CartPageState extends State<CartPage> {
                             if (productSnap.connectionState ==
                                 ConnectionState.done) {
                               Map _productMap = productSnap.data.data();
+                              total_cost += _productMap['price'];
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16.0,
@@ -151,6 +160,68 @@ class _CartPageState extends State<CartPage> {
           CustomActionBar(
             hasBackArrow: true,
             title: "Cart",
+          ),
+          CustomBtn(
+            text: "ORDER",
+            outlineBtn: true,
+            onPressed: () {
+              return showDialog(
+                context: context,
+                barrierDismissible:
+                    false, //Bắt buộc người dùng phải ấn vào "Close" để tắt thông báo
+                builder: (context) {
+                  return AlertDialog(
+                    backgroundColor: Colors.redAccent,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    title: Text("Order Detail", textAlign: TextAlign.center),
+                    content: Container(
+                      child: Column(
+                        children: [
+                          Text(
+                            "Thông tin chuyển tiền",
+                            style: Constants.boldHeading
+                                .copyWith(color: Colors.white),
+                          ),
+                          SizedBox(),
+                          Text(
+                            "Ngân hàng: TP Bank",
+                            style: Constants.regularHeading,
+                          ),
+                          Text(
+                            "Tên chủ tài khoản: ABC",
+                            style: Constants.regularHeading,
+                          ),
+                          Text(
+                            "Số tài khoản: 1234523453123",
+                            style: Constants.regularHeading,
+                          ),
+                          Text(
+                            "Số tiền: \$${total_cost}",
+                            style: Constants.regularHeading,
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        child: Text(
+                          "Done",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(_snackBar);
+                        },
+                      )
+                    ],
+                  );
+                },
+              );
+            },
           )
         ],
       ),
